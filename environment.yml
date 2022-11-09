@@ -1,0 +1,11 @@
+name: plotcheck
+channels:
+  - conda-forge
+ dependencies:
+   - xarray
+   - pandas
+   - numpy
+   - glob
+   - os
+   - cartopy.crs
+   - matplotlib
