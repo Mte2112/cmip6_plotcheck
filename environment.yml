@@ -7,5 +7,6 @@ channels:
    - numpy
    - glob
    - os
+   - time
    - cartopy.crs
    - matplotlib
