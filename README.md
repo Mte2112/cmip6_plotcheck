@@ -1,5 +1,14 @@
 # CMIP6 Post-CMOR Plotting Program  
-(plotcheck.py)  
+(cmor_plotcheck.py)  
 Goal: After CMORizing E3 output, visualize all variables processed (where possible).
+- Ensure that the data are of expected magnitude and distribution and that they are time-varying.
+- Compare to available E2.X runs of similar configuration.
+- Output key statistics that may give a snapshot overview of run.
+- Make simple & efficient. Add complexity later if need be.  
 
-## Documentation coming soon...
+To do:  
+- Add command line args
+- Subroutines, clean up dirty code
+- Include more statistics
+- Create logic for handling 'gr' 'gn' grids (& how to compare)
+## More documentation coming soon...
