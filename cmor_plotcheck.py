@@ -31,76 +31,10 @@ os.chdir(outdir)
 for direc3 in glob.glob(allvarsE3):
     os.chdir(outdir)
     
-    '''#################### Define functions start ####################
-    # Get a sample file from each variable
-    def get_sample(direc, outdir):
-        global sample
-        
-        os.chdir(direc)
-        firstfile = os.listdir()[0] # get first file in directory to sample
-        os.chdir(outdir)
-        sample = direc + '/' + firstfile # Extract the first file in each directory (i.e. the first N years) to sample each var
-    
-    # Select first pressure level to sample
-    def check_dim(ds):
-        try: 
-            # set some global variables
-            global plev_bin 
-            global height_bin 
-            
-            ds.plev # check if 'plev' is a dimension
-            strds = str(ds)
-            plev_bin = 1
-            locals()[strds] = ds.where(ds['plev'] == ds.plev[0].values) # sample file by slicing first plev
-        except:
-            print("No plev detected")
-            plev_bin = 0
-
-        try:
-            ds.height # check if 'height' is a dimension
-            height_bin = 1
-            locals()[strds] = ds.where(ds['height'] == ds.height[0].values) # sample file by slicing first height
-        except:
-            print("No height detected")
-            height_bin = 0
-    
-    # Get some basic statistics for plotting
-    def getstats(ds3, ds2, varexist):
-        global maxval
-        global minval
-        global timemean
-        global vmax
-        global vmin
-        maxval = []
-        minval = []
-        timemean = []
-        vmax = []
-        vmin = []
-        
-        # Get E23 stats
-        maxval.append(ds3[varname].max().values)
-        minval.append(ds3[varname].min().values)
-        timemean.append(ds3[varname].mean('time'))
-        vmax.append(ds3[varname].mean('time').max().values)
-        vmin.append(ds3[varname].mean('time').min().values)
-        # Get E2 stats (if have matching data)
-        if varexist == 1:
-            maxval.append(ds2[varname].max().values)
-            minval.append(ds2[varname].min().values)
-            timemean.append(ds2[varname].mean('time'))
-            vmax.append(ds2[varname].mean('time').max().values)
-            vmin.append(ds2[varname].mean('time').min().values)
-        else:
-            maxval.append("NA")
-            minval.append("NA")
-            timemean.append("NA")
-            vmax.append("NA")
-            vmin.append("NA")
-    #################### Define functions end ####################'''
-    
     # Call 'get_sample' for E3, save filename and open dataset
-    cpt.get_sample(direc3, outdir)
-    fileE3 = sample
+    fileE3 = cpt.get_sample(direc3, outdir)
+    #fileE3 = sample
+    
     # Open the sample E3 file 
     dsE3 = xr.open_dataset(fileE3)
     
@@ -120,8 +54,8 @@ for direc3 in glob.glob(allvarsE3):
     if len(direc2) > 0:
         direc2 = direc2[0]
         os.chdir(direc2) # if this fails, there was no path found (aka no matching data)
-        cpt.get_sample(direc2, outdir)
-        fileE2 = sample
+        fileE2 = cpt.get_sample(direc2, outdir)
+        #fileE2 = sample
 
         # creat e2 dataset
         dsE2 = xr.open_dataset(fileE2)
@@ -134,15 +68,17 @@ for direc3 in glob.glob(allvarsE3):
         varexist = 0
     
     # Check for num dimensions
-    cpt.check_dim(dsE3)
+    dsE3 = cpt.check_dim(dsE3)
     if varexist == 1:
-        cpt.check_dim(dsE2)
-        
-    
-    
+        dsE2 = cpt.check_dim(dsE2)
 
-    cpt.getstats(dsE3, dsE2, varexist)
-        
+    arr_arr = cpt.getstats(dsE3, dsE2, varexist, varname)
+    arr_arr_str = ["maxval", "minval", "timemean", "vmax", "vmin"]
+    
+    # Loop through array and set variables
+    for arr, n in zip(arr_arr_str, np.arange(0,len(arr_arr), 1)):
+        locals()[arr] = arr_arr[n]
+    
     # Title
     years = fileE3.split('_')[-1].split('.')[0]
     m3title = "mean " + varname + " " + freq + " - " + direc3.split("/")[-7] + " " + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")"
