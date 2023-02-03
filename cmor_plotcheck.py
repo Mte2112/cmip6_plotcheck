@@ -71,16 +71,17 @@ def runit():
                 if gride3 == "gr":
                     e2path_full_native = e2path_full.replace("/gr/", "/gn/")
                     direc2 = glob.glob(e2path_full_native)
-                    direc2 = direc2[0]
-                    os.chdir(direc2) # if this fails, there was no path found (aka no matching data)
-                    fileE2 = cpt.get_sample(direc2, outdir)
-                    #fileE2 = sample
+                    if len(direc2) > 0:
+                        direc2 = direc2[0]
+                        os.chdir(direc2) # if this fails, there was no path found (aka no matching data)
+                        fileE2 = cpt.get_sample(direc2, outdir)
+                        #fileE2 = sample
 
-                    # creat e2 dataset
-                    dsE2 = xr.open_dataset(fileE2)
+                        # creat e2 dataset
+                        dsE2 = xr.open_dataset(fileE2)
 
-                    # Verify that E2 variable exists, and carry on
-                    varexist = 1
+                        # Verify that E2 variable exists, and carry on
+                        varexist = 1
                 else:   
                     print("No E2 match found for " + fileE3.split('/')[-1] + ", skipping...")
                     dsE2 = None
