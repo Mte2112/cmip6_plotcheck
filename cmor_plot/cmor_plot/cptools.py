@@ -44,37 +44,46 @@ class Tools:
         
         return sample
     
-    def check_dim(ds):
+    def check_dim(ds, varname):
         """ Function to select first pressure/height/etc. level to sample
         If file > 3D, slice at first index of Nth dimension (other than lat/lon/time)
+        Might be more interesting for some variables if the sample statistic was
+        the integrated column of X. But this can be programmed in later if need be. 
+        Please reach out to me if you would like to chat about this-maxwell.t.elling@nasa.gov
+        
+        TO DO: CONSIDER THE VARS WITH NO TIME DIM
         
         """
         
-        try: 
-            ds.plev # check if 'plev' is a dimension
-            # sample file by masking first plev
-            return ds.where(ds['plev'] == ds.plev[0].values) 
-        except:
-            print("No plev detected")
-            return ds
-
-        try:
-            ds.height # check if 'height' is a dimension
-            height_bin = 1
-            # sample file by masking first height
-            return ds.where(ds['height'] == ds.height[0].values) 
-        except:
-            print("No height detected")
-            height_bin = 0
-            return ds
+        dims = ds[varname].dims
+        ijt = ["lon", "lat", "time"]
+        for dim in dims:
+            if dim in ijt:
+                pass
+            else:
+                ds = ds.where(ds[dim] == ds[dim][0].values)
+        return ds
 
 
 
     def getstats(ds3, ds2, varexist, varname):
         """ Function calculates some basic statistics for plotting
         Output the statistics as an array of arrays
-            - arr_arr = [maxval, minval, timemean, vmax, vmin]
         
+        Inputs: 
+        ds3: e3 dataset
+        ds2: e2 dataset
+        varexist: boolean indicating whether e2 matching dataset exists (1) or not (0)
+        varname: variable name extracted from directory structure
+        tdim: boolean indicating whether time dimension present in file
+        
+        Outputs: 
+        arr_arr = [maxval, minval, timemean, vmax, vmin]
+            -maxval: maximum value in dataset
+            -minval: minimum value in dataset
+            -timemean: time averaged statistic for sample
+            -vmax: colorbar max
+            -vmin: colorbar min
         """
         
         # Initialize individual arrays
@@ -83,18 +92,33 @@ class Tools:
         timemean = []
         vmax = []
         vmin = []
+        tdim = [] 
         
         # Get E23 stats
         maxval.append(ds3[varname].max().values)
         minval.append(ds3[varname].min().values)
-        timemean.append(ds3[varname].mean('time'))
+        # If time dimension not found in dataset, skipping calculation and plot 2D data
+        if "time" in ds3[varname].dims:
+            timemean.append(ds3[varname].mean('time'))
+            tdim.append(1)
+        else:
+            timemean.append(ds3[varname])
+            tdim.append(0)
+            print("No time dimension found in E3 " + varname + " ds, skipping time average...")
         vmax.append(ds3[varname].mean('time').max().values)
         vmin.append(ds3[varname].mean('time').min().values)
         # Get E2 stats (if have matching data)
         if varexist == 1:
             maxval.append(ds2[varname].max().values)
             minval.append(ds2[varname].min().values)
-            timemean.append(ds2[varname].mean('time'))
+            # If time dimension not found in dataset, skipping calculation and plot 2D data
+            if "time" in ds2[varname].dims:
+                timemean.append(ds2[varname].mean('time'))
+                tdim.append(1)
+            else:
+                timemean.append(ds2[varname])
+                tdim.append(0)
+                print("No time dimension found in E2 " + varname + " ds, skipping time average...")
             vmax.append(ds2[varname].mean('time').max().values)
             vmin.append(ds2[varname].mean('time').min().values)
         else:
@@ -105,7 +129,7 @@ class Tools:
             vmin.append("NA")
             
         # Create array of arrays
-        arr_arr = [maxval, minval, timemean, vmax, vmin]
+        arr_arr = [maxval, minval, timemean, vmax, vmin, tdim]
         return arr_arr
         
     def __repr__(self):
