@@ -61,7 +61,7 @@ class Tools:
             if dim in ijt:
                 pass
             else:
-                ds = ds.where(ds[dim] == ds[dim][0].values)
+                ds = ds.where(ds[dim] == ds[dim][0].values, drop=True)
         return ds
 
 
