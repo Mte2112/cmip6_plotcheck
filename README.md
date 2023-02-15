@@ -9,6 +9,5 @@ Goal: After CMORizing E3 output, visualize all variables processed (where possib
 To do:  
 - Add command line args
 - Subroutines, clean up dirty code
-- Include more statistics
-- Create logic for handling 'gr' 'gn' grids (& how to compare)
+- Include more statistics, functionality to select
 ## More documentation coming soon...
