@@ -10,4 +10,5 @@ To do:
 - Add command line args
 - Subroutines, clean up dirty code
 - Include more statistics, functionality to select
+- 2D plots type and implementation
 ## More documentation coming soon...
