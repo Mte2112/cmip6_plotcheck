@@ -11,4 +11,6 @@ To do:
 - Subroutines, clean up dirty code
 - Include more statistics, functionality to select
 - 2D plots type and implementation
+
+Contacts: maxwellelling@gmail.com, ajoherron@gmail.com
 ## More documentation coming soon...
