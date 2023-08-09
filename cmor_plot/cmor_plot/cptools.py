@@ -32,11 +32,11 @@ class Tools:
         (i.e. 1850-1900 usually for historical period) 
         
         """
-        
-        #global sample # set global variable
-        
+                
         os.chdir(direc)
-        firstfile = os.listdir()[0] # get first file in directory to sample
+        file_list = os.listdir()
+        file_list.remove('.git')
+        firstfile = file_list[0]
         os.chdir(outdir)
         
         # Extract the first file in each directory (i.e. the first N years) to sample each var
