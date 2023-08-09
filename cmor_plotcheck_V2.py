@@ -27,19 +27,8 @@ os.chdir(outdir)
 allvarsE2 = runE2 + "*/*/*/*"
 allvarsE3 = runE3 + "*/*/*/*"
 
-# Instantiate PDF document
-figname = 'test_CMIP6_plotter'
-plot_name = outdir + figname + '.pdf'
-pp = PdfPages(plot_name)
-
-
-ax_counter = 0
+# Set central longitude for plotting
 central_lon = 0
-num_rows = len(glob.glob(allvarsE3))
-
-#fig, axes = plt.subplots(nrows=num_rows, ncols=2, figsize = (25, 13))
-#plt.subplots_adjust(hspace = 0.5)
-#ax = plt.axes(projection=ccrs.Robinson())
 
 # Loop through the E3 directory 
 for direc3 in glob.glob(allvarsE3):
@@ -135,8 +124,6 @@ for direc3 in glob.glob(allvarsE3):
         # E2 plot (left)
         if varexist == 1:
             fig = plt.figure(figsize=(14,5))
-            #fig_title = '\nE2 File:' + m2title + '\nE3 File:' + m3title
-            #plt.suptitle(fig_title, fontsize=18)
             ax1 = plt.subplot(1, 2, 1, projection=ccrs.Robinson(central_lon))
             gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
             gl1.top_labels = gl1.right_labels = False
@@ -227,7 +214,7 @@ def save_image(filename):
     p.close()  
   
 # Name file, call function
-filename = "PRACTICE_PLOTS.pdf"  
+filename = 'cmor_plotcheck_V2_plots.pdf'
 save_image(filename)
 
 # Calculate overall time
