@@ -184,8 +184,8 @@ for direc3 in glob.glob(allvarsE3):
         df = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation'],
                            'GISS-E2': [E2_mean, E2_median, E2_min, E2_max, E2_std],
                            'GISS-E3': [E3_mean, E3_median, E3_min, E3_max, E3_std],
-                           'Percent Difference (%)': [mean_percent_diff, median_percent_diff, max_percent_diff, \
-                           min_percent_diff, std_percent_diff]}).set_index([var_title]).round(3)
+                           'Percent Difference (%)': [mean_percent_diff, median_percent_diff, min_percent_diff, \
+                           max_percent_diff, std_percent_diff]}).set_index([var_title]).round(3)
 
         # Assign accuracy check (arbitrary for now)
         # (starting with 10% percent difference as requirement to pass check)
