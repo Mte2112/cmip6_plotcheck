@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(name='cmor_plot',
-      version='1.0',
+      version='0.0',
       description='Functions for cmor_plotcheck',
       packages=['cmor_plot'],
-      authors='Maxwell Elling: maxwellelling@gmail.com, Alex Herron: ajoherron@gmail.com',
+      author_email='mte2112@columbia.com',
       zip_safe=False)
