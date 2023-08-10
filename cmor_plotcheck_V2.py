@@ -30,6 +30,15 @@ allvarsE3 = runE3 + "*/*/*/*"
 # Set central longitude for plotting
 central_lon = 0
 
+# Function to calculate similarity of distributions btw E2 and E3
+def KL_divergence(p, q):
+    if len(p) > len(q):
+        p = np.random.choice(p, len(q))
+    elif len(q) > len(p):
+        q = np.random.choice(q, len(p))
+    kl_div = np.sum(p * np.log(p/q))
+    return '{:.2e}'.format(kl_div)
+
 # Loop through the E3 directory 
 for direc3 in glob.glob(allvarsE3):
         
