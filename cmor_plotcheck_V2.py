@@ -205,6 +205,11 @@ for direc3 in glob.glob(allvarsE3):
         print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
         print(formatted_df)
 
+        # Print KL divergence between E2 and E3 values
+        E2_vals = list(dsE2.data_vars.items())[-1][1].values.flatten()
+        E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
+        print(f'KL Divergence: {KL_divergence(E2_vals, E3_vals)}')
+
 # Function for saving all plots as a single PDF
 def save_image(filename):
 
