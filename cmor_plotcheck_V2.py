@@ -1,13 +1,14 @@
-import xarray as xr
-import pandas as pd
-import numpy as np
 import glob
 import os
 import time
-import cartopy.crs as ccrs
 import sys
 import argparse
 import warnings
+import xarray as xr
+import pandas as pd
+import numpy as np
+import cartopy.crs as ccrs
+import matplotlib.ticker as ticker
 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -21,15 +22,6 @@ start = time.time()
 runE2 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E2-1-G/historical/r1i1p1f2/'
 runE3 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E3-G/historical/r1i1p1f1/'
 
-# Change directory and set paths for looping
-outdir = os.getcwd()
-os.chdir(outdir)
-allvarsE2 = runE2 + "*/*/*/*"
-allvarsE3 = runE3 + "*/*/*/*"
-
-# Set central longitude for plotting
-central_lon = 0
-
 # Function to calculate similarity of distributions btw E2 and E3
 def KL_divergence(p, q):
     if len(p) > len(q):
@@ -38,6 +30,39 @@ def KL_divergence(p, q):
         q = np.random.choice(q, len(p))
     kl_div = np.sum(p * np.log(p/q))
     return '{:.2e}'.format(kl_div)
+
+# Visual comparison of E2 / E3 data
+def histogram(E2_vals, E3_vals):
+
+    # Set plotting constants
+    num_bins = 25
+    alpha = 0.25
+
+    # E2 histogram
+    fig, ax = plt.subplots(figsize=(10,7))
+    ax.hist(E2_vals, bins=num_bins, color='blue', edgecolor='black', alpha=alpha, label='E2 Data')
+    ax.set_title(hist_title)
+    ax.set_xlabel(varname)
+    ax.set_ylabel("Percentage of E2 Data")
+    ax.legend(loc='upper left')
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E2_vals)))
+    ax.grid()
+
+    # E3 histogram
+    ax_copy = ax.twinx()
+    ax_copy.hist(E3_vals, bins=num_bins, color='orange', edgecolor='black', alpha=alpha, label='E3 Data')
+    ax_copy.set_ylabel("Percentage of E3 Data")
+    ax_copy.legend(loc='upper right')
+    ax_copy.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E3_vals)))
+
+# Change directory and set paths for looping
+outdir = os.getcwd()
+os.chdir(outdir)
+allvarsE2 = runE2 + "*/*/*/*"
+allvarsE3 = runE3 + "*/*/*/*"
+
+# Set central longitude for plotting
+central_lon = 0
 
 # Loop through the E3 directory 
 for direc3 in glob.glob(allvarsE3):
@@ -106,13 +131,20 @@ for direc3 in glob.glob(allvarsE3):
         for arr, n in zip(arr_arr_str, np.arange(0,len(arr_arr), 1)):
             locals()[arr] = arr_arr[n]
         
-        # Title
+        # Title for primary plot
         years = fileE3.split('_')[-1].split('.')[0]
         m3title = direc3.split("/")[-7] + "\n" + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
                   + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" + '\n(Daily, Mean)'
         if varexist == 1:
             m2title = direc2.split("/")[-7] + "\n" + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
                       + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")" + '\n(Daily, Mean)'
+
+        # Histogram title
+        hist_title = direc2.split("/")[-7] + ' ' + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
+                    + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")\n" \
+                    + direc3.split("/")[-7] + ' ' + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
+                    + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" \
+                    + '\n(Daily, Mean)'
         
         # Get cbar labels
         try:
@@ -205,10 +237,13 @@ for direc3 in glob.glob(allvarsE3):
         print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
         print(formatted_df)
 
-        # Print KL divergence between E2 and E3 values
+        # Print KL divergence between E2 and E3
         E2_vals = list(dsE2.data_vars.items())[-1][1].values.flatten()
         E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
         print(f'KL Divergence: {KL_divergence(E2_vals, E3_vals)}')
+
+        # Plot histogram of E2 and E3 data
+        histogram(E2_vals, E2_vals)
 
 # Function for saving all plots as a single PDF
 def save_image(filename):
@@ -234,4 +269,4 @@ save_image(filename)
 # Calculate overall time
 end = time.time()
 duration = round(end - start, 3)
-print(f'\nTotal time: {duration}')
+print(f'\nTotal time: {duration} seconds')
