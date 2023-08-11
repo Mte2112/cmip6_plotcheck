@@ -1,3 +1,5 @@
+Inspiration for this project: Ann M Fridlind's cmip6_plot_check
+
 # CMIP6 Post-CMOR Plotting Program  
 (cmor_plotcheck.py)  
 Goal: After CMORizing E3 output, visualize all variables processed (where possible).
@@ -12,5 +14,8 @@ To do:
 - Include more statistics, functionality to select
 - 2D plots type and implementation
 
-Contacts: maxwellelling@gmail.com, ajoherron@gmail.com
+Contacts:
+- maxwellelling@gmail.com
+- ajoherron@gmail.com
+
 ## More documentation coming soon...
