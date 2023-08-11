@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 from matplotlib.backends.backend_pdf import PdfPages
+from tabulate import tabulate
 
 class Tools:
     """ Tools (functions) used for cmor_plotcheck
@@ -19,7 +20,6 @@ class Tools:
         
         get_stats: Generates key statistics to be recorded and displayed in a 
         table (i.e. min, max)
-    
             
     """
     
@@ -200,3 +200,48 @@ class Tools:
         ax_copy.set_ylabel("Percentage of E3 Data")
         ax_copy.legend(loc='upper right')
         ax_copy.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E3_vals)))
+
+    # Function to create neatly formatted table of statistics for E2 and E3
+    def stats_df(dsE2, dsE3, threshold):
+
+        # Mean stats
+        E2_mean = list(dsE2.mean().data_vars.items())[-1][1].values.item()
+        E3_mean = list(dsE3.mean().data_vars.items())[-1][1].values.item()
+        mean_percent_diff = (abs(E2_mean - E3_mean) / E3_mean) * 100
+
+        # Median stats
+        E2_median = list(dsE2.median().data_vars.items())[-1][1].values.item()
+        E3_median = list(dsE3.median().data_vars.items())[-1][1].values.item()
+        median_percent_diff = (abs(E2_median - E3_median) / E3_median) * 100
+
+        # Maximum stats
+        E2_max = list(dsE2.max().data_vars.items())[-1][1].values.item()
+        E3_max = list(dsE3.max().data_vars.items())[-1][1].values.item()
+        max_percent_diff = (abs(E2_max - E3_max) / E3_max) * 100
+
+        # Mininum stats
+        E2_min = list(dsE2.min().data_vars.items())[-1][1].values.item()
+        E3_min = list(dsE3.min().data_vars.items())[-1][1].values.item()
+        min_percent_diff = (abs(E2_min - E3_min) / E3_min) * 100
+
+        # Standard deviation stats
+        E2_std = list(dsE2.std().data_vars.items())[-1][1].values.item()
+        E3_std = list(dsE3.std().data_vars.items())[-1][1].values.item()
+        std_percent_diff = (abs(E2_std - E3_std) / E3_std) * 100
+
+        # Create dataframe for statistics
+        variable = list(dsE3.data_vars.items())[-1][0]
+        var_title = 'Statistic (for ' + str(variable) + ')'
+        df = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation'],
+                        'GISS-E2': [E2_mean, E2_median, E2_min, E2_max, E2_std],
+                        'GISS-E3': [E3_mean, E3_median, E3_min, E3_max, E3_std],
+                        'Percent Difference (%)': [mean_percent_diff, median_percent_diff, min_percent_diff, \
+                        max_percent_diff, std_percent_diff]}).set_index([var_title]).round(3)
+
+        # Assign accuracy check (arbitrary for now)
+        # (starting with 10% percent difference as requirement to pass check)
+        df['Test (within 10%)'] = np.where(df['Percent Difference (%)'] < threshold, 'PASS', 'FAIL')
+
+        # Format and return table
+        formatted_df = tabulate(df, headers='keys', tablefmt='fancy_grid')
+        return formatted_df
