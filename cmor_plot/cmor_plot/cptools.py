@@ -3,6 +3,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -166,3 +167,36 @@ class Tools:
         
         # Close object
         p.close()  
+
+    # Function to calculate similarity of distributions btw E2 and E3
+    def KL_divergence(p, q):
+        if len(p) > len(q):
+            p = np.random.choice(p, len(q))
+        elif len(q) > len(p):
+            q = np.random.choice(q, len(p))
+        kl_div = np.sum(p * np.log(p/q))
+        return '{:.2e}'.format(kl_div)
+
+    # Visual comparison of E2 / E3 data
+    def histogram(E2_vals, E3_vals, hist_title, varname):
+
+        # Set plotting constants
+        num_bins = 25
+        alpha = 0.25
+
+        # E2 histogram
+        fig, ax = plt.subplots(figsize=(10,7))
+        ax.hist(E2_vals, bins=num_bins, color='blue', edgecolor='black', alpha=alpha, label='E2 Data')
+        ax.set_title(hist_title)
+        ax.set_xlabel(varname)
+        ax.set_ylabel("Percentage of E2 Data")
+        ax.legend(loc='upper left')
+        ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E2_vals)))
+        ax.grid()
+
+        # E3 histogram
+        ax_copy = ax.twinx()
+        ax_copy.hist(E3_vals, bins=num_bins, color='orange', edgecolor='black', alpha=alpha, label='E3 Data')
+        ax_copy.set_ylabel("Percentage of E3 Data")
+        ax_copy.legend(loc='upper right')
+        ax_copy.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E3_vals)))

@@ -8,10 +8,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import cartopy.crs as ccrs
-import matplotlib.ticker as ticker
 
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 from cmor_plot.cmor_plot.cptools import Tools as cpt
 from tabulate import tabulate
 
@@ -21,39 +19,6 @@ start = time.time()
 # Temporary directory being used for preliminary development
 runE2 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E2-1-G/historical/r1i1p1f2/'
 runE3 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E3-G/historical/r1i1p1f1/'
-
-# Function to calculate similarity of distributions btw E2 and E3
-def KL_divergence(p, q):
-    if len(p) > len(q):
-        p = np.random.choice(p, len(q))
-    elif len(q) > len(p):
-        q = np.random.choice(q, len(p))
-    kl_div = np.sum(p * np.log(p/q))
-    return '{:.2e}'.format(kl_div)
-
-# Visual comparison of E2 / E3 data
-def histogram(E2_vals, E3_vals):
-
-    # Set plotting constants
-    num_bins = 25
-    alpha = 0.25
-
-    # E2 histogram
-    fig, ax = plt.subplots(figsize=(10,7))
-    ax.hist(E2_vals, bins=num_bins, color='blue', edgecolor='black', alpha=alpha, label='E2 Data')
-    ax.set_title(hist_title)
-    ax.set_xlabel(varname)
-    ax.set_ylabel("Percentage of E2 Data")
-    ax.legend(loc='upper left')
-    ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E2_vals)))
-    ax.grid()
-
-    # E3 histogram
-    ax_copy = ax.twinx()
-    ax_copy.hist(E3_vals, bins=num_bins, color='orange', edgecolor='black', alpha=alpha, label='E3 Data')
-    ax_copy.set_ylabel("Percentage of E3 Data")
-    ax_copy.legend(loc='upper right')
-    ax_copy.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E3_vals)))
 
 # Change directory and set paths for looping
 outdir = os.getcwd()
@@ -240,29 +205,10 @@ for direc3 in glob.glob(allvarsE3):
         # Print KL divergence between E2 and E3
         E2_vals = list(dsE2.data_vars.items())[-1][1].values.flatten()
         E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
-        print(f'KL Divergence: {KL_divergence(E2_vals, E3_vals)}')
+        print(f'KL Divergence: {cpt.KL_divergence(E2_vals, E3_vals)}')
 
         # Plot histogram of E2 and E3 data
-        histogram(E2_vals, E2_vals)
-
-        break
-
-# # Function for saving all plots as a single PDF
-# def save_image(filename):
-
-#     # Create wrapper around pdf file
-#     p = PdfPages(filename)
-      
-#     # Get list of existing figure numbers
-#     fig_nums = plt.get_fignums()  
-#     figs = [plt.figure(n) for n in fig_nums]
-      
-#     # Save files in list
-#     for fig in figs: 
-#         fig.savefig(p, format='pdf') 
-      
-#     # Close object
-#     p.close()  
+        cpt.histogram(E2_vals, E2_vals, hist_title, varname)
   
 # Name file, save all plots
 filename = 'cmor_plotcheck_V2_plots.pdf'
