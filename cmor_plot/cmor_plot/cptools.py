@@ -17,10 +17,7 @@ class Tools:
         
         check_dim: Checks for # dimensions. Any files with > 3, selects sample 
         (first index in dimension (i.e. first pressure level))
-        
-        get_stats: Generates key statistics to be recorded and displayed in a 
-        table (i.e. min, max)
-            
+                    
     """
     
     
@@ -67,89 +64,6 @@ class Tools:
             else:
                 ds = ds.where(ds[dim] == ds[dim][0].values, drop=True)
         return ds
-
-
-
-    def getstats(ds3, ds2, varexist, varname):
-        """ Function calculates some basic statistics for plotting
-        Output the statistics as an array of arrays
-        
-        Inputs: 
-        ds3: e3 dataset
-        ds2: e2 dataset
-        varexist: boolean indicating whether e2 matching dataset exists (1) or not (0)
-        varname: variable name extracted from directory structure
-        tdim: boolean indicating whether time dimension present in file
-        
-        Outputs: 
-        arr_arr = [maxval, minval, timemean, vmax, vmin]
-            -maxval: maximum value in dataset
-            -minval: minimum value in dataset
-            -timemean: time averaged statistic for sample
-            -vmax: colorbar max
-            -vmin: colorbar min
-        """
-        
-        # Initialize individual arrays
-        maxval = []
-        minval = []
-        timemean = []
-        vmax = []
-        vmin = []
-        tdim = [] 
-        
-        # Get E23 stats
-        maxval.append(ds3[varname].max().values)
-        minval.append(ds3[varname].min().values)
-        # If time dimension not found in dataset, skipping calculation and plot 2D data
-        if "time" in ds3[varname].dims:
-            timemean.append(ds3[varname].mean('time'))
-            tdim.append(1)
-        else:
-            timemean.append(ds3[varname])
-            tdim.append(0)
-            print("No time dimension found in E3 " + varname + " ds, skipping time average...")
-        vmax.append(ds3[varname].mean('time').max().values)
-        vmin.append(ds3[varname].mean('time').min().values)
-        # Get E2 stats (if have matching data)
-        if varexist == 1:
-            maxval.append(ds2[varname].max().values)
-            minval.append(ds2[varname].min().values)
-            # If time dimension not found in dataset, skipping calculation and plot 2D data
-            if "time" in ds2[varname].dims:
-                timemean.append(ds2[varname].mean('time'))
-                tdim.append(1)
-            else:
-                timemean.append(ds2[varname])
-                tdim.append(0)
-                print("No time dimension found in E2 " + varname + " ds, skipping time average...")
-            vmax.append(ds2[varname].mean('time').max().values)
-            vmin.append(ds2[varname].mean('time').min().values)
-        else:
-            maxval.append("NA")
-            minval.append("NA")
-            timemean.append("NA")
-            vmax.append("NA")
-            vmin.append("NA")
-            
-        # Create array of arrays
-        arr_arr = [maxval, minval, timemean, vmax, vmin, tdim]
-        return arr_arr
-        
-    def __repr__(self):
-    
-        """Function to output the characteristics of these Tools
-        
-        Args:
-            None
-        
-        Returns:
-            string: characteristics of the tools
-        
-        """
-        
-        return "get_sample(direc, outdir), check_dim(ds), getstats(ds3, ds2, varexist)".\
-        format(self.get_sample, self.check_dim, self.getstats)
 
     # Function for saving all plots as a single PDF
     def save_image(filename):

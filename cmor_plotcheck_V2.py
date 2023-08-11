@@ -87,13 +87,6 @@ for direc3 in glob.glob(allvarsE3):
         dsE3 = cpt.check_dim(dsE3, varname)
         if varexist == 1:
             dsE2 = cpt.check_dim(dsE2, varname)
-
-        arr_arr = cpt.getstats(dsE3, dsE2, varexist, varname)
-        arr_arr_str = ["maxval", "minval", "timemean", "vmax", "vmin"]
-        
-        # Loop through array and set variables
-        for arr, n in zip(arr_arr_str, np.arange(0,len(arr_arr), 1)):
-            locals()[arr] = arr_arr[n]
         
         # Title for primary plot
         years = fileE3.split('_')[-1].split('.')[0]
@@ -123,8 +116,12 @@ for direc3 in glob.glob(allvarsE3):
         end = time.time()
 
         # Calculate bounds for colorbars (should be same for both plots)
-        cbar_upper = max(maxval)
-        cbar_lower = min(minval)
+        maxval_E2 = dsE2[varname].max().values
+        maxval_E3 = dsE3[varname].max().values
+        minval_E2 = dsE2[varname].min().values
+        minval_E3 = dsE3[varname].min().values
+        cbar_upper = max(maxval_E2, maxval_E3)
+        cbar_lower = min(minval_E2, minval_E3)
 
         # E2 plot (left)
         if varexist == 1:
@@ -132,7 +129,8 @@ for direc3 in glob.glob(allvarsE3):
             ax1 = plt.subplot(1, 2, 1, projection=ccrs.Robinson(central_lon))
             gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
             gl1.top_labels = gl1.right_labels = False
-            timemean[1].plot(transform=ccrs.PlateCarree(),
+            dsE2[varname].mean('time').plot(transform=ccrs.PlateCarree(),
+            #timemean[1].plot(transform=ccrs.PlateCarree(),
                             cbar_kwargs={'orientation':'horizontal','pad': 0.06},
                             vmax=cbar_upper,
                             vmin=cbar_lower)
@@ -151,7 +149,8 @@ for direc3 in glob.glob(allvarsE3):
         ax2 = plt.subplot(1, 2, 2, projection=ccrs.Robinson(central_lon))
         gl2 = ax2.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
         gl2.top_labels = gl2.left_labels = False
-        timemean[0].plot(transform=ccrs.PlateCarree(),
+        dsE3[varname].mean('time').plot(transform=ccrs.PlateCarree(),
+        #timemean[0].plot(transform=ccrs.PlateCarree(),
                         cbar_kwargs={'orientation':'horizontal','pad': 0.06},
                         vmax=cbar_upper,
                         vmin=cbar_lower)
