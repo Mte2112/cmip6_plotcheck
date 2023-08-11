@@ -1,4 +1,6 @@
 import os
+import sys
+import argparse
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -159,3 +161,30 @@ class Tools:
         # Format and return table
         formatted_df = tabulate(df, headers='keys', tablefmt='fancy_grid')
         return formatted_df
+
+    # Set command line arguments
+    def readOptions(args=sys.argv[1:]):
+        parser = argparse.ArgumentParser(description="List of parsing commands")
+        
+        parser.add_argument("-r1",
+                            "--E3run", 
+                            help="Input your E3 run directory (up to variant, i.e. '../r1i1p1f1/'. Please use CSS filesystem or follow directory structure",
+                            default='/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E3-G/historical/r1i1p1f1/')
+
+        parser.add_argument("-r2",
+                            "--EXrun",
+                            help="Input your comparison file directory (up to variant, i.e. '.../r1i1p1f1/'. Please use CSS filesystem or follow directory structure",
+                            default='/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E2-1-G/historical/r1i1p1f2/')
+        
+        parser.add_argument("-f",
+                            "--figure_name",
+                            help="Input your figure name (i.e. 'E3_E07_comp_plots')",
+                            default='cmor_plotcheck_V2_plots.pdf')
+
+        parser.add_argument('-hist',
+                            '--histogram',
+                            help='Option to include histogram in outputted figure (input "-hist" to create histogram in addition to baseline plots)',
+                            action='store_true')
+        
+        opts = parser.parse_args(args)
+        return opts

@@ -15,9 +15,12 @@ from cmor_plot.cmor_plot.cptools import Tools as cpt
 # Time entire process
 start = time.time()
 
-# Temporary directory being used for preliminary development
-runE2 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E2-1-G/historical/r1i1p1f2/'
-runE3 = '/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E3-G/historical/r1i1p1f1/'
+# Collect command line arguments
+options = cpt.readOptions(sys.argv[1:])
+runE2 = options.EXrun
+runE3 = options.E3run
+figure_name = options.figure_name
+hist_option = options.histogram
 
 # Change directory and set paths for looping
 outdir = os.getcwd()
@@ -95,13 +98,6 @@ for direc3 in glob.glob(allvarsE3):
         if varexist == 1:
             m2title = direc2.split("/")[-7] + "\n" + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
                       + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")" + '\n(Daily, Mean)'
-
-        # Histogram title
-        hist_title = direc2.split("/")[-7] + ' ' + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
-                    + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")\n" \
-                    + direc3.split("/")[-7] + ' ' + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
-                    + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" \
-                    + '\n(Daily, Mean)'
         
         # Get cbar labels
         try:
@@ -130,7 +126,6 @@ for direc3 in glob.glob(allvarsE3):
             gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
             gl1.top_labels = gl1.right_labels = False
             dsE2[varname].mean('time').plot(transform=ccrs.PlateCarree(),
-            #timemean[1].plot(transform=ccrs.PlateCarree(),
                             cbar_kwargs={'orientation':'horizontal','pad': 0.06},
                             vmax=cbar_upper,
                             vmin=cbar_lower)
@@ -150,7 +145,6 @@ for direc3 in glob.glob(allvarsE3):
         gl2 = ax2.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
         gl2.top_labels = gl2.left_labels = False
         dsE3[varname].mean('time').plot(transform=ccrs.PlateCarree(),
-        #timemean[0].plot(transform=ccrs.PlateCarree(),
                         cbar_kwargs={'orientation':'horizontal','pad': 0.06},
                         vmax=cbar_upper,
                         vmin=cbar_lower)
@@ -171,12 +165,24 @@ for direc3 in glob.glob(allvarsE3):
         E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
         print(f'KL Divergence: {cpt.KL_divergence(E2_vals, E3_vals)}')
 
-        # Plot histogram of E2 and E3 data
-        cpt.histogram(E2_vals, E2_vals, hist_title, varname)
+        # Create histogram if -hist option used
+        if hist_option is True:
+
+            # Histogram title
+            hist_title = direc2.split("/")[-7] + ' ' + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
+                        + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")\n" \
+                        + direc3.split("/")[-7] + ' ' + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
+                        + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" \
+                        + '\n(Daily, Mean)'
+
+            # Plot histogram of E2 and E3 data
+            cpt.histogram(E2_vals, E2_vals, hist_title, varname)
+
+        else:
+            pass
   
 # Name file, save all plots
-filename = 'cmor_plotcheck_V2_plots.pdf'
-cpt.save_image(filename)
+cpt.save_image(figure_name)
 
 # Calculate overall time
 end = time.time()
