@@ -2,6 +2,9 @@ import os
 import xarray as xr
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+from matplotlib.backends.backend_pdf import PdfPages
 
 class Tools:
     """ Tools (functions) used for cmor_plotcheck
@@ -146,3 +149,20 @@ class Tools:
         
         return "get_sample(direc, outdir), check_dim(ds), getstats(ds3, ds2, varexist)".\
         format(self.get_sample, self.check_dim, self.getstats)
+
+    # Function for saving all plots as a single PDF
+    def save_image(filename):
+
+        # Create wrapper around pdf file
+        p = PdfPages(filename)
+        
+        # Get list of existing figure numbers
+        fig_nums = plt.get_fignums()  
+        figs = [plt.figure(n) for n in fig_nums]
+        
+        # Save files in list
+        for fig in figs: 
+            fig.savefig(p, format='pdf') 
+        
+        # Close object
+        p.close()  

@@ -245,26 +245,28 @@ for direc3 in glob.glob(allvarsE3):
         # Plot histogram of E2 and E3 data
         histogram(E2_vals, E2_vals)
 
-# Function for saving all plots as a single PDF
-def save_image(filename):
+        break
 
-    # Create wrapper around pdf file
-    p = PdfPages(filename)
+# # Function for saving all plots as a single PDF
+# def save_image(filename):
+
+#     # Create wrapper around pdf file
+#     p = PdfPages(filename)
       
-    # Get list of existing figure numbers
-    fig_nums = plt.get_fignums()  
-    figs = [plt.figure(n) for n in fig_nums]
+#     # Get list of existing figure numbers
+#     fig_nums = plt.get_fignums()  
+#     figs = [plt.figure(n) for n in fig_nums]
       
-    # Save files in list
-    for fig in figs: 
-        fig.savefig(p, format='pdf') 
+#     # Save files in list
+#     for fig in figs: 
+#         fig.savefig(p, format='pdf') 
       
-    # Close object
-    p.close()  
+#     # Close object
+#     p.close()  
   
-# Name file, call function
+# Name file, save all plots
 filename = 'cmor_plotcheck_V2_plots.pdf'
-save_image(filename)
+cpt.save_image(filename)
 
 # Calculate overall time
 end = time.time()
