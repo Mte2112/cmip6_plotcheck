@@ -3,7 +3,6 @@ import os
 import time
 import sys
 import argparse
-#import warnings
 import xarray as xr
 import pandas as pd
 import numpy as np
@@ -48,7 +47,7 @@ for direc3 in glob.glob(allvarsE3):
         varname = direc3.split("/")[-3]
 
         # Compare variable to file name to command line input variable
-        if (varname in variable) or (variable is None):
+        if (variable is None) or (varname in variable):
 
             # Collect info from directory structure
             gride3 = direc3.split("/")[-2]
