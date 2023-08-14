@@ -158,9 +158,13 @@ class Tools:
         # (starting with 10% percent difference as requirement to pass check)
         df['Test (within 10%)'] = np.where(df['Percent Difference (%)'] < threshold, 'PASS', 'FAIL')
 
-        # Format and return table
+        # Create color coded dataframe
+        color_df = df.style.apply(lambda x: ['background: red' if v == 'FAIL' else '' for v in x], axis = 1).apply(lambda x:\
+                                      ['background: green' if v == 'PASS' else '' for v in x], axis = 1)
+
+        # Format tabulated dataframe, return both tables
         formatted_df = tabulate(df, headers='keys', tablefmt='fancy_grid')
-        return formatted_df
+        return formatted_df, color_df
 
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):

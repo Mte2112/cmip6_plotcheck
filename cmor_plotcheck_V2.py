@@ -7,9 +7,11 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import cartopy.crs as ccrs
+import dataframe_image as dfi
 
 from matplotlib import pyplot as plt
 from cmor_plot.cmor_plot.cptools import Tools as cpt
+from fpdf import FPDF
 
 # Time entire process
 start = time.time()
@@ -30,6 +32,10 @@ allvarsE3 = runE3 + "*/*/*/*"
 
 # Set central longitude for plotting
 central_lon = 0
+
+# Initialize table counter, list, and PDF merger
+table_counter = 0
+table_pdf_list = []
 
 # Loop through the E3 directory 
 for direc3 in glob.glob(allvarsE3):
@@ -160,8 +166,16 @@ for direc3 in glob.glob(allvarsE3):
             plt.xticks([])
             plt.yticks([])
 
-            # Calculate and print formatted statistics table
-            formatted_df = cpt.stats_df(dsE2, dsE3, 10)
+            # Calculate formatted and color-coded statistics tables
+            formatted_df, color_df = cpt.stats_df(dsE2, dsE3, 10)
+
+            # Create intermediate PNG files for each table
+            table_name = 'table_' + str(table_counter) + '.png'
+            dfi.export(color_df, table_name)
+            table_pdf_list.append(table_name)
+            table_counter += 1
+
+            # Print formatted table to stdout
             print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
             print(formatted_df)
 
@@ -193,6 +207,27 @@ for direc3 in glob.glob(allvarsE3):
 
 # Name file, save all plots
 cpt.save_image(figure_name)
+
+# Consolidate all tables into a single file
+pdf = FPDF()
+pdf.set_auto_page_break(0)
+for image in table_pdf_list:
+
+    # Add formatted table PNG to overall PDF file
+    pdf.set_font(family='Arial', style='B', size=200)
+    title = 'Table'
+    pdf.set_title(title)
+    pdf.add_page()
+    x = pdf.get_x()
+    y = pdf.get_y()
+    w = pdf.get_string_width(title)
+    pdf.image(image, x=x, y=y, w=w)
+
+    # Delete intermediate table files
+    os.remove(image)
+
+# Save PDF file including all tables
+pdf.output('cmor_plotcheck_V2_tables.pdf', 'F')
 
 # Calculate overall time
 end = time.time()
