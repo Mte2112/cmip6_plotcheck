@@ -166,12 +166,12 @@ class Tools:
     def readOptions(args=sys.argv[1:]):
         parser = argparse.ArgumentParser(description="List of parsing commands")
 
-        parser.add_argument("-r1",
+        parser.add_argument("-r3",
                             "--E3run", 
                             help="Input your E3 run directory (up to variant, i.e. '../r1i1p1f1/'. Please use CSS filesystem or follow directory structure",
                             default='/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E3-G/historical/r1i1p1f1/')
 
-        parser.add_argument("-r2",
+        parser.add_argument("-rX",
                             "--EXrun",
                             help="Input your comparison file directory (up to variant, i.e. '.../r1i1p1f1/'. Please use CSS filesystem or follow directory structure",
                             default='/Users/aherron1/Documents/Code/CMIP/Visualization/testdata/css/cmip6/CMIP6/CMIP/NASA-GISS/GISS-E2-1-G/historical/r1i1p1f2/')
