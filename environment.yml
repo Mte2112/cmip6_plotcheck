@@ -9,5 +9,8 @@ channels:
    - glob
    - os
    - time
-   - cartopy.crs
    - matplotlib
+   - sys
+   - argparse
+   - tabulate
+   - cartopy.crs
