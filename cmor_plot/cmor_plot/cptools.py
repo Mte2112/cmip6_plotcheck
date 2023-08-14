@@ -165,7 +165,7 @@ class Tools:
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):
         parser = argparse.ArgumentParser(description="List of parsing commands")
-        
+
         parser.add_argument("-r1",
                             "--E3run", 
                             help="Input your E3 run directory (up to variant, i.e. '../r1i1p1f1/'. Please use CSS filesystem or follow directory structure",
@@ -185,6 +185,11 @@ class Tools:
                             '--histogram',
                             help='Option to include histogram in outputted figure (input "-hist" to create histogram in addition to baseline plots)',
                             action='store_true')
+
+        parser.add_argument('-var',
+                            '--variable',
+                            help='Specific variable of interest for given query (following CSS directory structure and naming conventions)',
+                            default=None)
         
         opts = parser.parse_args(args)
         return opts
