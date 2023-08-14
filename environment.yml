@@ -14,3 +14,4 @@ channels:
    - argparse
    - tabulate
    - cartopy.crs
+   - matplotlib
