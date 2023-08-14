@@ -189,7 +189,8 @@ class Tools:
         parser.add_argument('-var',
                             '--variable',
                             help='Specific variable of interest for given query (following CSS directory structure and naming conventions)',
-                            default=None)
+                            default=None,
+                            nargs='+')
         
         opts = parser.parse_args(args)
         return opts

@@ -48,7 +48,7 @@ for direc3 in glob.glob(allvarsE3):
         varname = direc3.split("/")[-3]
 
         # Compare variable to file name to command line input variable
-        if (varname == variable) or (variable is None):
+        if (varname in variable) or (variable is None):
 
             # Collect info from directory structure
             gride3 = direc3.split("/")[-2]
@@ -191,7 +191,7 @@ for direc3 in glob.glob(allvarsE3):
         # Don't analyze files for variables not included in query
         else:
             pass
-            
+
 # Name file, save all plots
 cpt.save_image(figure_name)
 
