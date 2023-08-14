@@ -2,11 +2,15 @@ name: plotcheck
 channels:
   - conda-forge
  dependencies:
+   # Recommended that xarray is version 2023.7.0 or later
    - xarray
    - pandas
    - numpy
    - glob
    - os
    - time
-   - cartopy.crs
    - matplotlib
+   - sys
+   - argparse
+   - tabulate
+   - cartopy.crs
