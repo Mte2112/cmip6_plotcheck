@@ -15,3 +15,5 @@ channels:
    - tabulate
    - cartopy.crs
    - matplotlib
+   - FPDF
+   - PIL
