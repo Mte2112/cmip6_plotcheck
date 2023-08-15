@@ -118,7 +118,7 @@ class Tools:
         ax_copy.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=len(E3_vals)))
 
     # Function to create neatly formatted table of statistics for E2 and E3
-    def stats_df(dsE2, dsE3, threshold):
+    def stats_df(dsE2, dsE3, threshold, title):
 
         # Mean stats
         E2_mean = list(dsE2.mean().data_vars.items())[-1][1].values.item()
@@ -159,12 +159,19 @@ class Tools:
         df['Test (within 10%)'] = np.where(df['Percent Difference (%)'] < threshold, 'PASS', 'FAIL')
 
         # Create color coded dataframe
-        color_df = df.style.apply(lambda x: ['background: red' if v == 'FAIL' else '' for v in x], axis = 1).apply(lambda x:\
-                                      ['background: green' if v == 'PASS' else '' for v in x], axis = 1)
+        color_df = df.style.apply(lambda x: ['background: red' if v == 'FAIL' else '' for v in x], axis = 1)\
+                           .apply(lambda x: ['background: green' if v == 'PASS' else '' for v in x], axis = 1)\
+                           .set_caption(title)\
+                           .format({'GISS-E2': "{:.3f}",
+                                    'GISS-E3': "{:.3f}",
+                                    'Percent Difference (%)': "{:.3f}"})
+
+        # Return test column for overall test table
+        tests = df['Percent Difference (%)'].values
 
         # Format tabulated dataframe, return both tables
         formatted_df = tabulate(df, headers='keys', tablefmt='fancy_grid')
-        return formatted_df, color_df
+        return formatted_df, color_df, tests
 
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):
@@ -183,7 +190,7 @@ class Tools:
         parser.add_argument("-f",
                             "--figure_name",
                             help="Input your figure name (i.e. 'E3_E07_comp_plots')",
-                            default='cmor_plotcheck_V2_plots.pdf')
+                            default='cmor_plotcheck_V2')
 
         parser.add_argument('-hist',
                             '--histogram',

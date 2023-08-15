@@ -12,6 +12,7 @@ import dataframe_image as dfi
 from matplotlib import pyplot as plt
 from cmor_plot.cmor_plot.cptools import Tools as cpt
 from fpdf import FPDF
+from PIL import Image, ImageDraw, ImageFont
 
 # Time entire process
 start = time.time()
@@ -33,9 +34,11 @@ allvarsE3 = runE3 + "*/*/*/*"
 # Set central longitude for plotting
 central_lon = 0
 
-# Initialize table counter, list, and PDF merger
+# Initialize table counter and list, and list of tests
 table_counter = 0
 table_pdf_list = []
+table_title_list = []
+test_list = []
 
 # Loop through the E3 directory 
 for direc3 in glob.glob(allvarsE3):
@@ -105,10 +108,10 @@ for direc3 in glob.glob(allvarsE3):
             # Title for primary plot
             years = fileE3.split('_')[-1].split('.')[0]
             m3title = direc3.split("/")[-7] + "\n" + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
-                    + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" + '\n(Daily, Mean)'
+                    + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")"
             if varexist == 1:
                 m2title = direc2.split("/")[-7] + "\n" + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
-                        + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")" + '\n(Daily, Mean)'
+                        + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")"
             
             # Get cbar labels
             try:
@@ -119,8 +122,6 @@ for direc3 in glob.glob(allvarsE3):
                 labele2 = 'Mean' + dsE2[varname].attrs["units"]
             except:
                 labele2 = 'Mean' + varname
-
-            end = time.time()
 
             # Calculate bounds for colorbars (should be same for both plots)
             maxval_E2 = dsE2[varname].max().values
@@ -167,10 +168,13 @@ for direc3 in glob.glob(allvarsE3):
             plt.yticks([])
 
             # Calculate formatted and color-coded statistics tables
-            formatted_df, color_df = cpt.stats_df(dsE2, dsE3, 10)
+            table_title = 'Comparison ' + str(table_counter) + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
+            table_title_list.append(table_title)
+            formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, 10, table_title)
+            test_list.append(tests)
 
             # Create intermediate PNG files for each table
-            table_name = 'table_' + str(table_counter) + '.png'
+            table_name = 'intermediate_table_' + str(table_counter) + '.png'
             dfi.export(color_df, table_name)
             table_pdf_list.append(table_name)
             table_counter += 1
@@ -206,7 +210,45 @@ for direc3 in glob.glob(allvarsE3):
             pass
 
 # Name file, save all plots
-cpt.save_image(figure_name)
+cpt.save_image(figure_name + '_plots.pdf')
+
+# Create overall test table, add to table_pdf_list
+variable = list(dsE3.data_vars.items())[-1][0]
+var_title = 'Statistic (for ' + str(variable) + ')'
+test_table = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation']}).set_index([var_title])
+test_table_title = "\u0332".join('Key:') + '\n\n'
+comparison_counter = 0
+
+# Add columns for each comparison
+for i in range(len(test_list)):
+    test_table['Comparison ' + str(comparison_counter)] = test_list[i]
+    test_table_title += table_title_list[i].replace('\n', ' ').replace('<br>', '\n') + '\n\n'
+    comparison_counter += 1
+
+# Format test table
+format_dict = {}
+for col_i in test_table.columns: format_dict[col_i] = '{:.3f}'
+test_table = test_table.style.apply(lambda x: ['background: green' if (v < 10) else '' for v in x], axis = 1)\
+                             .apply(lambda x: ['background: yellow' if (10 <= v < 25) else '' for v in x], axis = 1)\
+                             .apply(lambda x: ['background: orange' if (25 <= v < 50) else '' for v in x], axis = 1)\
+                             .apply(lambda x: ['background: red' if (v >= 50) else '' for v in x], axis = 1)\
+                             .format(format_dict)\
+                             .set_caption('Percent Difference between Various Runs')
+
+# Save test table as png, add to list of table figures
+dfi.export(test_table, 'test_table.png')
+table_pdf_list.append('test_table.png')
+
+# Create png for key
+width = 512
+height = len(test_list) * 250
+message = test_table_title
+img = Image.new('RGB', (width, height), color='white')
+font = ImageFont.truetype("Helvetica", 12)
+imgDraw = ImageDraw.Draw(img)
+imgDraw.text((10, 10), message, fill=(0, 0, 0), font=font)
+img.save('key.png')
+table_pdf_list.append('key.png')
 
 # Consolidate all tables into a single file
 pdf = FPDF()
@@ -227,7 +269,7 @@ for image in table_pdf_list:
     os.remove(image)
 
 # Save PDF file including all tables
-pdf.output('cmor_plotcheck_V2_tables.pdf', 'F')
+pdf.output(figure_name + '_tables.pdf', 'F')
 
 # Calculate overall time
 end = time.time()
