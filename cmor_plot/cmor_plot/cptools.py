@@ -1,11 +1,13 @@
 import os
 import sys
 import argparse
+import cftime
 import xarray as xr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import cartopy.crs as ccrs
 
 from matplotlib.backends.backend_pdf import PdfPages
 from tabulate import tabulate
@@ -173,6 +175,65 @@ class Tools:
         formatted_df = tabulate(df, headers='keys', tablefmt='fancy_grid')
         return formatted_df, color_df, tests
 
+    # Function that reads NetCDF files and formats time index to datetime
+    def read_netcdf(filename):
+        ds = xr.open_dataset(filename, decode_times=False)
+        todate_ds = cftime.num2date(ds['time'], ds.time.attrs['units'], ds.time.attrs['calendar'])
+        ds['time'] = todate_ds
+        dt_idx = ds.indexes['time'].values.astype('datetime64[ns]')
+        ds['time'] = dt_idx
+        return ds
+
+    # Plot heatmap for E2 and E3
+    def heatmap(dsE2, dsE3, varname, varexist, m2title, m3title):
+
+        # Set constants
+        central_lon = 0
+        
+        # Calculate bounds for colorbars (should be same for both plots)
+        maxval_E2 = dsE2[varname].max().values
+        maxval_E3 = dsE3[varname].max().values
+        minval_E2 = dsE2[varname].min().values
+        minval_E3 = dsE3[varname].min().values
+        cbar_upper = max(maxval_E2, maxval_E3)
+        cbar_lower = min(minval_E2, minval_E3)
+
+        # E2 plot (left)
+        if varexist == 1:
+            fig = plt.figure(figsize=(14,5))
+            ax1 = plt.subplot(1, 2, 1, projection=ccrs.Robinson(central_lon))
+            gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
+            gl1.top_labels = gl1.right_labels = False
+            dsE2[varname].mean('time').plot(transform=ccrs.PlateCarree(),
+                            cbar_kwargs={'orientation':'horizontal','pad': 0.06},
+                            vmax=cbar_upper,
+                            vmin=cbar_lower)
+            ax1.coastlines()
+            plt.title(m2title)
+
+        else:
+            fig = plt.figure()
+            ax1 = plt.subplot(1, 2, 1, projection=ccrs.Robinson(central_lon))
+            ax1.text(0.25, 0.5, 'NO DATA', fontsize=40)
+            plt.title(m2title)
+            plt.xticks([])
+            plt.yticks([])
+
+        # E3 plot (right)
+        ax2 = plt.subplot(1, 2, 2, projection=ccrs.Robinson(central_lon))
+        gl2 = ax2.gridlines(crs=ccrs.PlateCarree(), draw_labels=True, linestyle='--')
+        gl2.top_labels = gl2.left_labels = False
+        dsE3[varname].mean('time').plot(transform=ccrs.PlateCarree(),
+                        cbar_kwargs={'orientation':'horizontal','pad': 0.06},
+                        vmax=cbar_upper,
+                        vmin=cbar_lower)
+        ax2.coastlines()
+        plt.title(m3title)
+        plt.xlabel('')
+        plt.ylabel('')
+        plt.xticks([])
+        plt.yticks([])
+
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):
         parser = argparse.ArgumentParser(description="List of parsing commands")
@@ -202,6 +263,18 @@ class Tools:
                             help='Specific variable of interest for given query (following CSS directory structure and naming conventions)',
                             default=None,
                             nargs='+')
+
+        parser.add_argument('-start',
+                            '--start_year',
+                            help='Start date to begin slicing of dataset',
+                            default=None,
+                            type=int)
+
+        parser.add_argument('-end',
+                            '--end_year',
+                            help='End date to finish slicing of dataset',
+                            default=None,
+                            type=int)
         
         opts = parser.parse_args(args)
         return opts
