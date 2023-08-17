@@ -227,6 +227,14 @@ if plot_num > 0:
         test_table_title += table_title_list[i].replace('\n', ' ').replace('<br>', '\n') + '\n\n'
         col_counter += 1
 
+    # Calculate risk number
+    risky_values = sum(test_table[test_table > 10].count())
+    num_rows = len(test_table)
+    num_cols = len(test_table.columns)
+    num_values = num_rows * num_cols
+    risk_fraction = risky_values / num_values
+    risk_percentage = '{:.1%}'.format(risk_fraction)
+
     # Format test table
     format_dict = {}
     for col_i in test_table.columns: format_dict[col_i] = '{:.3f}'
@@ -235,7 +243,7 @@ if plot_num > 0:
                                 .apply(lambda x: ['background: orange' if (25 <= v < 50) else '' for v in x], axis = 1)\
                                 .apply(lambda x: ['background: red' if (v >= 50) else '' for v in x], axis = 1)\
                                 .format(format_dict)\
-                                .set_caption('Percent Difference between Various Runs')
+                                .set_caption(f'Percent Difference between Various Runs<br>Risk Percentage: {risk_percentage}')
 
     # Save test table as png, add to list of table figures
     dfi.export(test_table, 'test_table.png')
