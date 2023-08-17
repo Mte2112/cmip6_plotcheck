@@ -185,7 +185,7 @@ class Tools:
         return ds
 
     # Plot heatmap for E2 and E3
-    def heatmap(dsE2, dsE3, varname, varexist, m2title, m3title):
+    def heatmap(dsE2, dsE3, varname, varexist, m2title, m3title, comparison_counter):
 
         # Set constants
         central_lon = 0
@@ -233,6 +233,9 @@ class Tools:
         plt.ylabel('')
         plt.xticks([])
         plt.yticks([])
+
+        # Overall figure formatting
+        fig.suptitle(f'Comparison {comparison_counter}', fontsize=20)
 
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):

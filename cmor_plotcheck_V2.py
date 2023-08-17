@@ -34,7 +34,7 @@ allvarsE2 = runE2 + "*/*/*/*"
 allvarsE3 = runE3 + "*/*/*/*"
 
 # Initialize table counter and list, and list of tests
-table_counter = 0
+comparison_counter = 0
 table_pdf_list = []
 table_title_list = []
 test_list = []
@@ -165,19 +165,19 @@ for direc3 in glob.glob(allvarsE3):
                 plot_num += 1
 
                 ### Create heatmap ###
-                cpt.heatmap(dsE2, dsE3, varname, varexist, m2title, m3title)
+                cpt.heatmap(dsE2, dsE3, varname, varexist, m2title, m3title, comparison_counter)
 
                 # Calculate formatted and color-coded statistics tables
-                table_title = 'Comparison ' + str(table_counter) + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
+                table_title = 'Comparison ' + str(comparison_counter) + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
                 table_title_list.append(table_title)
                 formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, 10, table_title)
                 test_list.append(tests)
 
                 # Create intermediate PNG files for each table
-                table_name = 'intermediate_table_' + str(table_counter) + '.png'
+                table_name = 'intermediate_table_' + str(comparison_counter) + '.png'
                 dfi.export(color_df, table_name)
                 table_pdf_list.append(table_name)
-                table_counter += 1
+                comparison_counter += 1
 
                 # Print formatted table to stdout
                 print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
@@ -219,13 +219,13 @@ if plot_num > 0:
     var_title = 'Statistic (for ' + str(variable) + ')'
     test_table = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation']}).set_index([var_title])
     test_table_title = "\u0332".join('Key:') + '\n\n'
-    comparison_counter = 0
+    col_counter = 0
 
     # Add columns for each comparison
     for i in range(len(test_list)):
-        test_table['Comparison ' + str(comparison_counter)] = test_list[i]
+        test_table['Comparison ' + str(col_counter)] = test_list[i]
         test_table_title += table_title_list[i].replace('\n', ' ').replace('<br>', '\n') + '\n\n'
-        comparison_counter += 1
+        col_counter += 1
 
     # Format test table
     format_dict = {}
