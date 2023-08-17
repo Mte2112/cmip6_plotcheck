@@ -26,6 +26,7 @@ hist_option = options.histogram
 variable = options.variable
 start_year = options.start_year
 end_year = options.end_year
+risk_threshold = options.risk_threshold
 
 # Change directory and set paths for looping
 outdir = os.getcwd()
@@ -170,7 +171,7 @@ for direc3 in glob.glob(allvarsE3):
                 # Calculate formatted and color-coded statistics tables
                 table_title = 'Comparison ' + str(comparison_counter) + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
                 table_title_list.append(table_title)
-                formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, 10, table_title)
+                formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, risk_threshold, table_title)
                 test_list.append(tests)
 
                 # Create intermediate PNG files for each table
@@ -228,7 +229,7 @@ if plot_num > 0:
         col_counter += 1
 
     # Calculate risk number
-    risky_values = sum(test_table[test_table > 10].count())
+    risky_values = sum(test_table[test_table > risk_threshold].count())
     num_rows = len(test_table)
     num_cols = len(test_table.columns)
     num_values = num_rows * num_cols
@@ -238,10 +239,10 @@ if plot_num > 0:
     # Format test table
     format_dict = {}
     for col_i in test_table.columns: format_dict[col_i] = '{:.3f}'
-    test_table = test_table.style.apply(lambda x: ['background: green' if (v < 10) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: yellow' if (10 <= v < 25) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: orange' if (25 <= v < 50) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: red' if (v >= 50) else '' for v in x], axis = 1)\
+    test_table = test_table.style.apply(lambda x: ['background: green' if (v < risk_threshold) else '' for v in x], axis = 1)\
+                                .apply(lambda x: ['background: yellow' if (risk_threshold <= v < (risk_threshold*2)) else '' for v in x], axis = 1)\
+                                .apply(lambda x: ['background: orange' if ((risk_threshold*2) <= v < 100) else '' for v in x], axis = 1)\
+                                .apply(lambda x: ['background: red' if (v >= 100) else '' for v in x], axis = 1)\
                                 .format(format_dict)\
                                 .set_caption(f'Percent Difference between Various Runs<br>Risk Percentage: {risk_percentage}')
 

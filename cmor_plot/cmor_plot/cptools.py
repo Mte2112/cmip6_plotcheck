@@ -158,7 +158,7 @@ class Tools:
 
         # Assign accuracy check (arbitrary for now)
         # (starting with 10% percent difference as requirement to pass check)
-        df['Test (within 10%)'] = np.where(df['Percent Difference (%)'] < threshold, 'PASS', 'FAIL')
+        df[f'Test (within {threshold}%)'] = np.where(df['Percent Difference (%)'] < threshold, 'PASS', 'FAIL')
 
         # Create color coded dataframe
         color_df = df.style.apply(lambda x: ['background: red' if v == 'FAIL' else '' for v in x], axis = 1)\
@@ -278,6 +278,12 @@ class Tools:
                             help='End date to finish slicing of dataset',
                             default=None,
                             type=int)
+
+        parser.add_argument('-thresh',
+                            '--risk_threshold',
+                            help='Arbitrary values to assign "risky" status for percentage difference between runs',
+                            default=10,
+                            type=int)        
         
         opts = parser.parse_args(args)
         return opts
