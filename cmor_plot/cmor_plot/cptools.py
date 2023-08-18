@@ -237,6 +237,16 @@ class Tools:
         # Overall figure formatting
         fig.suptitle(f'Comparison {comparison_counter}', fontsize=20)
 
+    # Formatting text for colors / bold / underlined
+    def format_text(text, mod):
+        colors = {'green': '\033[92m',
+                'yellow': '\033[93m',
+                'orange': '\033[1;31m',
+                'red': '\033[91m',
+                'bold': '\033[1m',
+                'underline': '\033[4m'}
+        return colors[mod] + text + '\033[0m'
+
     # Set command line arguments
     def readOptions(args=sys.argv[1:]):
         parser = argparse.ArgumentParser(description="List of parsing commands")

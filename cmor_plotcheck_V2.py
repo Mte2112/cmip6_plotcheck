@@ -240,12 +240,22 @@ if plot_num > 0:
     # Format test table
     format_dict = {}
     for col_i in test_table.columns: format_dict[col_i] = '{:.3f}'
-    test_table = test_table.style.apply(lambda x: ['background: green' if (v < risk_threshold) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: yellow' if (risk_threshold <= v < (risk_threshold*2)) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: orange' if ((risk_threshold*2) <= v < 100) else '' for v in x], axis = 1)\
-                                .apply(lambda x: ['background: red' if (v >= 100) else '' for v in x], axis = 1)\
-                                .format(format_dict)\
-                                .set_caption(f'Percent Difference between Various Runs<br>Risk Percentage: {risk_percentage}')
+    red_bound = [100 if (risk_threshold*3 <100) else risk_threshold*3][0]
+    color_ranges = {'green': [0, risk_threshold],
+                    'yellow': [risk_threshold, risk_threshold*2],
+                    'orange': [risk_threshold*2, red_bound],
+                    'red': [red_bound, np.inf]}
+    color_key = '<br><br>Key for color ranges:<br>'
+    for key, value in color_ranges.items():
+        color_key += key + ': ' + str(value) + '<br>'
+    test_table_caption = 'Percent Difference between Various Runs<br>Risk Percentage: '+ risk_percentage\
+                        + color_key
+    test_table = test_table.style.apply(lambda x: ['background: green' if (v < color_ranges['green'][1]) else '' for v in x], axis = 1)\
+                                 .apply(lambda x: ['background: yellow' if (color_ranges['yellow'][0] <= v < color_ranges['yellow'][1]) else '' for v in x], axis = 1)\
+                                 .apply(lambda x: ['background: orange' if (color_ranges['orange'][0] <= v < color_ranges['orange'][1]) else '' for v in x], axis = 1)\
+                                 .apply(lambda x: ['background: red' if (v >= color_ranges['red'][0]) else '' for v in x], axis = 1)\
+                                 .format(format_dict)\
+                                 .set_caption(test_table_caption)
 
     # Save test table as png, add to list of table figures
     dfi.export(test_table, 'test_table.png')
@@ -282,6 +292,12 @@ if plot_num > 0:
 
     # Save PDF file including all tables
     pdf.output(figure_name + '_tables.pdf', 'F')
+
+    # Print key for overall table (color-coded) to command line
+    color_key = '\nKey for color ranges:\n(Values represent % difference in aggregate values between E2 and E3 runs)\n'
+    for key, value in color_ranges.items():
+        color_key += cpt.format_text(key, key) + ': ' + str(value) + '\n'
+    print(color_key)
 
     # Calculate overall time
     end = time.time()
