@@ -149,7 +149,7 @@ class Tools:
 
         # Create dataframe for statistics
         variable = list(dsE3.data_vars.items())[-1][0]
-        var_title = 'Statistic (for ' + str(variable) + ')'
+        var_title = 'Statistic'
         df = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation'],
                         'GISS-E2': [E2_mean, E2_median, E2_min, E2_max, E2_std],
                         'GISS-E3': [E3_mean, E3_median, E3_min, E3_max, E3_std],

@@ -169,7 +169,8 @@ for direc3 in glob.glob(allvarsE3):
                 cpt.heatmap(dsE2, dsE3, varname, varexist, m2title, m3title, comparison_counter)
 
                 # Calculate formatted and color-coded statistics tables
-                table_title = 'Comparison ' + str(comparison_counter) + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
+                table_title = 'Comparison ' + str(comparison_counter) + '<br>Variable: ' + varname\
+                                + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
                 table_title_list.append(table_title)
                 formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, risk_threshold, table_title)
                 test_list.append(tests)
@@ -217,7 +218,7 @@ if plot_num > 0:
 
     # Create overall test table, add to table_pdf_list
     variable = list(dsE3.data_vars.items())[-1][0]
-    var_title = 'Statistic (for ' + str(variable) + ')'
+    var_title = 'Statistic'
     test_table = pd.DataFrame({var_title: ['Mean', 'Median', 'Minimum', 'Maximum', 'Standard Deviation']}).set_index([var_title])
     test_table_title = "\u0332".join('Key:') + '\n\n'
     col_counter = 0
