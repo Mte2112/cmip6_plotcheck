@@ -121,11 +121,11 @@ for direc3 in glob.glob(allvarsE3):
                         + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")"
 
             # Title for histogram
-            hist_title = direc2.split("/")[-7] + ' ' + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
+            hist_title = 'Comparison ' + str(comparison_counter) + '\n' \
+                            + direc2.split("/")[-7] + ' ' + direc2.split("/")[-6] + " " + direc2.split("/")[-5] + " " \
                             + direc2.split("/")[-2] + " " + direc2.split("/")[-1] + " " + "(" + years + ")\n" \
                             + direc3.split("/")[-7] + ' ' + direc3.split("/")[-6] + " " + direc3.split("/")[-5] + " " \
                             + direc3.split("/")[-2] + " " + direc3.split("/")[-1] + " " + "(" + years + ")" \
-                            + '\n(Daily, Mean)'
             
             # Get cbar labels
             try:
