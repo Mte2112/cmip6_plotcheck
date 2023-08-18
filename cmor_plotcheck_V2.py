@@ -193,7 +193,7 @@ for direc3 in glob.glob(allvarsE3):
                 if hist_option is True:
 
                     ### Plot histogram of E2 and E3 data ###
-                    cpt.histogram(E2_vals, E2_vals, hist_title, varname)
+                    cpt.histogram(E2_vals, E3_vals, hist_title, varname)
 
                 # Default is to not plot histogram
                 else:
