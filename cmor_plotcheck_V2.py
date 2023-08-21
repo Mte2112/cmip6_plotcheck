@@ -9,16 +9,19 @@ import numpy as np
 import dataframe_image as dfi
 
 from matplotlib import pyplot as plt
-from cmor_plot.cmor_plot.cptools import Tools as cpt
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 from datetime import date
+
+from cmor_plot.cmor_plot.cptools import Plotting
+from cmor_plot.cmor_plot.cptools import Statistics
+from cmor_plot.cmor_plot.cptools import Tools
 
 # Time entire process
 start = time.time()
 
 # Collect command line arguments
-options = cpt.readOptions(sys.argv[1:])
+options = Tools.readOptions(sys.argv[1:])
 runE2 = options.EXrun
 runE3 = options.E3run
 figure_name = options.figure_name
@@ -48,14 +51,14 @@ plot_num = 0
 for direc3 in glob.glob(allvarsE3):
 
     # Call 'get_sample' for E3, save filename and open dataset
-    fileE3 = cpt.get_sample(direc3, outdir)
+    fileE3 = Tools.get_sample(direc3, outdir)
     
     if ('/fx/' in fileE3) | ('/fy/' in fileE3) | ('/Ofx/' in fileE3) | ('/Ofy/' in fileE3):
         None
     else:
 
         # Read in properly formatted file
-        dsE3 = cpt.read_netcdf(fileE3)
+        dsE3 = Tools.read_netcdf(fileE3)
         
         # Get relevant varname & frequency
         freq = direc3.split("/")[-4]
@@ -78,10 +81,10 @@ for direc3 in glob.glob(allvarsE3):
             if len(direc2) > 0:
                 direc2 = direc2[0]
                 os.chdir(direc2) # if this fails, there was no path found (aka no matching data)
-                fileE2 = cpt.get_sample(direc2, outdir)
+                fileE2 = Tools.get_sample(direc2, outdir)
 
                 # Create e2 dataset
-                dsE2 = cpt.read_netcdf(fileE2)
+                dsE2 = Tools.read_netcdf(fileE2)
 
                 # Verify that E2 variable exists, and carry on
                 varexist = 1
@@ -95,10 +98,10 @@ for direc3 in glob.glob(allvarsE3):
                     if len(direc2) > 0:
                         direc2 = direc2[0]
                         os.chdir(direc2) # if this fails, there was no path found (aka no matching data)
-                        fileE2 = cpt.get_sample(direc2, outdir)
+                        fileE2 = Tools.get_sample(direc2, outdir)
 
                         # Read in properly formatted E2 file
-                        dsE2 = cpt.read_netcdf(fileE2)
+                        dsE2 = Tools.read_netcdf(fileE2)
 
                         # Verify that E2 variable exists, and carry on
                         varexist = 1
@@ -108,9 +111,9 @@ for direc3 in glob.glob(allvarsE3):
                     varexist = 0
                     
             # Check for num dimensions
-            dsE3 = cpt.check_dim(dsE3, varname)
+            dsE3 = Tools.check_dim(dsE3, varname)
             if varexist == 1:
-                dsE2 = cpt.check_dim(dsE2, varname)
+                dsE2 = Tools.check_dim(dsE2, varname)
             
             # Title for primary plot
             years = fileE3.split('_')[-1].split('.')[0]
@@ -166,13 +169,13 @@ for direc3 in glob.glob(allvarsE3):
                 plot_num += 1
 
                 ### Create heatmap ###
-                cpt.heatmap(dsE2, dsE3, varname, varexist, m2title, m3title, comparison_counter)
+                Plotting.heatmap(dsE2, dsE3, varname, varexist, m2title, m3title, comparison_counter)
 
                 # Calculate formatted and color-coded statistics tables
                 table_title = 'Comparison ' + str(comparison_counter) + '<br>Variable: ' + varname\
                                 + '<br>E2 File: ' + m2title + '<br>' + 'E3 File: ' + m3title
                 table_title_list.append(table_title)
-                formatted_df, color_df, tests = cpt.stats_df(dsE2, dsE3, risk_threshold, table_title)
+                formatted_df, color_df, tests = Statistics.stats_tables(dsE2, dsE3, risk_threshold, table_title)
                 test_list.append(tests)
 
                 # Create intermediate PNG files for each table
@@ -188,13 +191,13 @@ for direc3 in glob.glob(allvarsE3):
                 # Print KL divergence between E2 and E3
                 E2_vals = list(dsE2.data_vars.items())[-1][1].values.flatten()
                 E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
-                print(f'KL Divergence: {cpt.KL_divergence(E2_vals, E3_vals)}')
+                print(f'KL Divergence: {Statistics.KL_divergence(E2_vals, E3_vals)}')
 
                 # Create histogram if -hist option used
                 if hist_option is True:
 
                     ### Plot histogram of E2 and E3 data ###
-                    cpt.histogram(E2_vals, E3_vals, hist_title, varname)
+                    Plotting.histogram(E2_vals, E3_vals, hist_title, varname)
 
                 # Default is to not plot histogram
                 else:
@@ -214,7 +217,7 @@ for direc3 in glob.glob(allvarsE3):
 if plot_num > 0:
 
     # Name file, save all plots
-    cpt.save_image(figure_name + '_plots.pdf')
+    Tools.save_image(figure_name + '_plots.pdf')
 
     # Create overall test table, add to table_pdf_list
     variable = list(dsE3.data_vars.items())[-1][0]
@@ -296,7 +299,7 @@ if plot_num > 0:
     # Print key for overall table (color-coded) to command line
     color_key = '\nKey for color ranges:\n(Values represent % difference in aggregate values between E2 and E3 runs)\n'
     for key, value in color_ranges.items():
-        color_key += cpt.format_text(key, key) + ': ' + str(value) + '\n'
+        color_key += Tools.format_text(key, key) + ': ' + str(value) + '\n'
     print(color_key)
 
     # Calculate overall time
