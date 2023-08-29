@@ -183,14 +183,15 @@ for direc3 in glob.glob(allvarsE3):
                 table_pdf_list.append(table_name)
                 comparison_counter += 1
 
-                # Print formatted table to stdout
-                print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
-                print(formatted_df)
-
                 # Print KL divergence between E2 and E3
                 E2_vals = list(dsE2.data_vars.items())[-1][1].values.flatten()
                 E3_vals = list(dsE3.data_vars.items())[-1][1].values.flatten()
-                print(f'KL Divergence: {Statistics.KL_divergence(E2_vals, E3_vals)}')
+                kl_divergence = Statistics.KL_divergence(E2_vals, E3_vals)
+
+                # Print files, KL divergence, and formatted table to stdout
+                print(f'\nE2 File: {m2title}\n\nE3 File: {m3title}')
+                print(f'\nKL Divergence: {kl_divergence}')
+                print(formatted_df)
 
                 # Create histogram if -hist option used
                 if hist_option is True:
@@ -296,7 +297,7 @@ if plot_num > 0:
     pdf.output(figure_name + '_tables.pdf', 'F')
 
     # Print key for overall table (color-coded) to command line
-    color_key = '\nKey for color ranges:\n(Values represent % difference in aggregate values between E2 and E3 runs)\n'
+    color_key = '\nKey for color ranges:\n(Values represent percent difference in aggregate values between E2 and E3 runs)\n'
     for key, value in color_ranges.items():
         color_key += Tools.format_text(key, key) + ': ' + str(value) + '\n'
     print(color_key)
@@ -304,7 +305,7 @@ if plot_num > 0:
     # Calculate overall time
     end = time.time()
     duration = round(end - start, 3)
-    print(f'\nTotal time: {duration} seconds')
+    print(f'Total time: {duration} seconds')
 
 # No valid data to work with
 else:
