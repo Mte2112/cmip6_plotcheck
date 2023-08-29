@@ -1,21 +1,20 @@
-import glob
 import os
-import time
 import sys
-import argparse
+import glob
+import time
+import numpy as np
 import xarray as xr
 import pandas as pd
-import numpy as np
 import dataframe_image as dfi
 
-from matplotlib import pyplot as plt
-from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
+from fpdf import FPDF
 from datetime import date
+from matplotlib import pyplot as plt
 
+from cmor_plot.cmor_plot.cptools import Tools
 from cmor_plot.cmor_plot.cptools import Plotting
 from cmor_plot.cmor_plot.cptools import Statistics
-from cmor_plot.cmor_plot.cptools import Tools
 
 # Time entire process
 start = time.time()

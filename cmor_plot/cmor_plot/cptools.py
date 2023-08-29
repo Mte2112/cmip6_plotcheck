@@ -1,16 +1,16 @@
 import os
 import sys
-import argparse
 import cftime
-import xarray as xr
+import argparse
 import numpy as np
+import xarray as xr
 import pandas as pd
+import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import cartopy.crs as ccrs
 
-from matplotlib.backends.backend_pdf import PdfPages
 from tabulate import tabulate
+from matplotlib.backends.backend_pdf import PdfPages
 
 class Plotting:
 
